@@ -50,11 +50,26 @@ One of the variables in the dataset is `revolutions`, the number of revolutions,
 **Question 2.1**: Using the function `datasummary`, summarize the mean, median, sd, min, and max of the variables `growth`, and `rgdp60` between two groups: countries with `revolutions` equal to 0, and countries with more than 0 revolutions. Call this variable `treat`. Make sure to also write the resulting data set to memory. Hint: you can check some examples [here](https://vincentarelbundock.github.io/modelsummary/articles/datasummary.html#datasummary).
 
 ```{r}
-treat <- ifelse(GrowthSW$revolutions > 0, "Countries with > 0 revolutions", "Countries with 0 revolutions")
-summary_stats <- aggregate(cbind(growth, rgdp60) ~ treat, data = GrowthSW,
-                           FUN = function(x) c(mean = mean(x), median = median(x),
-                                              sd = sd(x), min = min(x), max = max(x)))
-#library(modelsummary); library(tidyverse) 
+library(modelsummary); library(tidyverse)
+library(dplyr)
+#Add the variable treat to the dataset
+ 
+GrowthSW <- GrowthSW %>%
+  mutate(treat = ifelse(GrowthSW$revolutions > 0, "Revolutionary", "Non-revolutionary"))
+ 
+#Create separate datasets for revolutionary and non-revolutionary countries
+ 
+RevGrowthSW <- GrowthSW %>%
+  filter(treat == "Revolutionary")
+ 
+UnrevgrowthSW <- GrowthSW %>%
+  filter(treat == "Non-revolutionary")
+ 
+#Perform the summaries on both groups
+ 
+datasummary(growth +rgdp60 ~ Mean + Median + SD + Min + Max, data = RevGrowthSW)
+ 
+datasummary(growth +rgdp60 ~ Mean + Median + SD + Min + Max, data = UnrevgrowthSW)
 ```
 
 **Designated place**: type one or two sentences describing this table of a fellow student below. For example, comment on the mean and median growth of both groups. Then stage, commit and push it to their github repository. 
@@ -71,9 +86,7 @@ In question 2, we have seen that growth rates differ markedly between countries 
 **Question 3.1**: Try to make this more precise this by performing a t-test on the variable growth according to the group variable you have created in the previous question. 
 
 ```{r}
-# write t test here
-ttest_result <- t.test(GrowthSW$growth ~ treat)
-ttest_result 
+t.test(growth ~ treat, data = GrowthSW)
 ```
 
 **Question 3.2**: What is the $p$-value of the test, and what does that mean? Write down your answer below.
@@ -94,10 +107,10 @@ We now want to estimate a stepwise model. Stepwise means that we first estimate 
 **Question 3.4**: Write four models, titled `model1`, `model2`, `model3`, `model4` (using the `lm` function) to memory. Hint: you can also use the `update` function to add variables to an already existing specification.
 
 ```{r}
-model1 <- lm(growth ~ treat, data = GrowthSW)
-model2 <- update(model1, . ~ . + rgdp60)
-model3 <- update(model2, . ~ . + tradeshare)
-model4 <- update(model3, . ~ . + education)
+model1 <- lm(growth ~ education, data = GrowthSW)
+model2 <- lm(growth ~ education + tradeshare, data = GrowthSW)
+model3 <- lm(growth ~ education + tradeshare + treat, data = GrowthSW)
+model4 <- lm(growth ~ education + tradeshare + treat + rgdp60, data = GrowthSW)
 ```
 
 Now, we put the models in a list, and see what `modelsummary` gives us:
@@ -131,38 +144,16 @@ models |>
 ```{r}
 library(kableExtra)
 list(model1, model2, model3, model4) |>
-  modelsummary(stars = TRUE, gof_map = c("nobs", "r.squared")) %>%
-  kable_styling(full_width = FALSE) %>%
-  row_spec(row = which(rownames(.) == "treat"), background = "red", color = "white")
+  modelsummary(stars=T, gof_map = c("nobs", "r.squared")) %>%
+  kable_styling() %>%
+  row_spec(7:8, bold = F, color = "white", background = "red")
 ```
 
 **Question 3.8**: Write a piece of code that exports this table (without the formatting) to a Word document. 
 
 ```{r}
-library(knitr)
-library(kableExtra)
-library(officer)
-library(flextable)
-
-# Generate the table
-table <- list(model1, model2, model3, model4) |>
-  modelsummary(stars = TRUE, gof_map = c("nobs", "r.squared")) %>%
-  kable_styling(full_width = FALSE) %>%
-  row_spec(row = which(rownames(.) == "treat"), background = "red", color = "white")
-
-# Convert table to data frame
-table_df <- as.data.frame(table)
-
-# Create flextable object
-flex_table <- flextable(table_df)
-
-# Create a Word document
-doc <- read_docx()
-doc <- body_add_flextable(doc, value = flex_table)
-
-# Save the document as a Word file
-output_file <- "output.docx"
-print(doc, target = output_file)
+list(model1, model2, model3, model4) %>%
+  modelsummary(stars=T, gof_map = c("nobs", "r.squared"), output = "growth_table.docx")
 ```
 
 ## The End
