@@ -52,23 +52,14 @@ One of the variables in the dataset is `revolutions`, the number of revolutions,
 ```{r}
 library(modelsummary); library(tidyverse)
 library(dplyr)
-#Add the variable treat to the dataset
- 
 GrowthSW <- GrowthSW %>%
   mutate(treat = ifelse(GrowthSW$revolutions > 0, "Revolutionary", "Non-revolutionary"))
- 
-#Create separate datasets for revolutionary and non-revolutionary countries
- 
 RevGrowthSW <- GrowthSW %>%
   filter(treat == "Revolutionary")
- 
 UnrevgrowthSW <- GrowthSW %>%
   filter(treat == "Non-revolutionary")
  
-#Perform the summaries on both groups
- 
 datasummary(growth +rgdp60 ~ Mean + Median + SD + Min + Max, data = RevGrowthSW)
- 
 datasummary(growth +rgdp60 ~ Mean + Median + SD + Min + Max, data = UnrevgrowthSW)
 ```
 
@@ -100,7 +91,7 @@ $$
 
 **Question 3.3**: What do you think the purpose of including the variable `rgdp60` is? Look at `?GrowthSW` to find out what the variables mean. 
 
-"rgdp60" is a variable that presents the value of GDP per capita in 1960, converted to 1960 US dollars. In my opinion this variable is used to compare countries based on their economic conditions from 1960. ?????
+"rgdp60" is a variable that presents the value of GDP per capita in 1960, converted to 1960 US dollars. In my opinion, this variable is used in order to compare countries based on their economic conditions from 1960. 
 
 We now want to estimate a stepwise model. Stepwise means that we first estimate a univariate regression $\text{growth}_i = \beta_0 + \beta_1 \cdot \text{treat}_i + \epsilon_i$, and in each subsequent model, we add one control variable. 
 
@@ -119,25 +110,18 @@ Now, we put the models in a list, and see what `modelsummary` gives us:
 library(modelsummary)
 list(model1, model2, model3, model4) |>
   modelsummary(stars = TRUE, gof_map = c(N = "nobs", R2 = "r.squared"))  
-# edit this to remove the statistics other than R-squared
-# and N
 ```
 
 **Question 3.5**: Edit the code chunk above to remove many statistics from the table, but keep only the number of observations $N$, and the $R^2$ statistic. 
 
 ```{r}
-library(modelsummary)
-
-models <- list(model1, model2, model3, model4)
-
-# Extract N and R-squared statistics for each model
-statistics <- c(N = function(model) nrow(model$model), R2 = "r.squared")
-
-models |>
-  modelsummary(stars = TRUE, gof_map = c(N = "nobs", R2 = "r.squared")) 
+list(model1, model2, model3, model4) |>
+  modelsummary(stars=T, gof_map = c("nobs", "r.squared"))
 ```
 
-**Question 3.6**: According to this analysis, what is the main driver of economic growth? Why?
+**Question 3.6**: According to this analysis, what is the main driver of economic growth? Why? 
+
+In my opinion, the main driver of economic growth is "tradeshare". It is the sum of exports and imports divided by GDP (from 1960 to 1995). In the second, third, and fourth models, it has significant positive coefficients and it indicates that with a higher trade share, the integration of the overall country's economy increases. 
 
 **Question 3.7**: In the code chunk below, edit the table such that the cells (including standard errors) corresponding to the variable `treat` have a red background and white text. Make sure to load the `kableExtra` library beforehand.
 
