@@ -82,6 +82,7 @@ t.test(growth ~ treat, data = GrowthSW)
 
 **Question 3.2**: What is the $p$-value of the test, and what does that mean? Write down your answer below.
 
+The p-value is the measurement of how probable it is to observe test results that are more extreme than what we expected, assuming that the null hypothesis is true. 
 
 We can also control for other factors by including them in a linear model, for example:
 
