@@ -59,6 +59,10 @@ summary_stats <- aggregate(cbind(growth, rgdp60) ~ treat, data = GrowthSW,
 
 **Designated place**: type one or two sentences describing this table of a fellow student below. For example, comment on the mean and median growth of both groups. Then stage, commit and push it to their github repository. 
 
+Candela Milikowsky:
+There is two tables, one with the date for countries that had a revolution and another one with countries that did not ahd a revolution.
+The mean of growth from countries with a revolution is equal to 1.68, and the man from the countries with a revolution is 2.46, meaning that the mean growth from countries with a revolution is lower than the countries without a revolution.
+
 
 ### Part 3: Make a table summarizing reressions using modelsummary and kable
 
